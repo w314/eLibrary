@@ -2,34 +2,34 @@
 // load required modules
 const dbModule = require('./DBModule');
 const http = require('http');
-const url = require('url');
 const querystring = require('querystring');
 
 const server = http.createServer((req, res) => {
 
-    // retrieve data from url
-    // get url
-    const reqUrl = req.url;
-    console.log(`Request URL: ${reqUrl}`);
-    // get path from url
-    const reqPath = url.parse(reqUrl).path;
-    console.log(`Request path: ${reqPath}`);
-    // get querystring from url
-    const reqQuery = url.parse(reqUrl).query;
-    console.log(`Request querystring: ${reqQuery}`);
-    // get data from url
-    const username = querystring.parse(reqQuery)['username'];
-    const password = querystring.parse(reqQuery)['password'];
-    console.log(`Username: ${username}\nPassword: ${password}`);
+    // RETRIEVE DATA FROM REQUEST BODY
+
+    // create variable to store incoming data chunks
+    let data = '';
+    req.on('data', (chunk) => data += chunk);
+    req.on('end', () => {
+
+        // parse received request data with querystring
+        const reqData = querystring.parse(data);
+        // get username and password from parsed request data
+        const username = reqData['username'];
+        const password = reqData['password'];
+        console.log(`Username: ${username}\nPassword: ${password}`);
+         
+        // authenticate user
+        const userStatus = dbModule.authenticateUser(username, password);
+        
+        // write response
+        res.writeHead(200, { ContentType: "text/html" });
+        res.write(`<html><body<h1>${userStatus}</h1></boyd></html>`);
+        res.end();
+    })
 
 
-    // authenticate user
-    const userStatus = dbModule.authenticateUser(username, password);
-
-    // write response
-    res.writeHead(200, { ContentType: "text/html" });
-    res.write(`<html><body<h1>${userStatus}</h1></boyd></html>`);
-    res.end();
 });
 
 // start server
