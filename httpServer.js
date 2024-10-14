@@ -3,6 +3,8 @@
 const dbModule = require('./DBModule');
 const http = require('http');
 const querystring = require('querystring');
+// load custom event handler module
+const eventModule = require('./EventHandlerModule');
 
 const server = http.createServer((req, res) => {
 
@@ -22,10 +24,17 @@ const server = http.createServer((req, res) => {
          
         // authenticate user
         const userStatus = dbModule.authenticateUser(username, password);
+        // get visitor count
+        const visitorCount = eventModule.visitorCountEvent();
         
         // write response
         res.writeHead(200, { ContentType: "text/html" });
-        res.write(`<html><body<h1>${userStatus}</h1></boyd></html>`);
+        // stops browsers creating requests for favicon 
+        // and therefore adding additional visitor counts
+        res.write(`<html><head><link rel="icon" href="data:,"></head>`);
+        res.write(`<body><h1>${userStatus}</h1>`);
+        res.write(`<p>The number of visitors whe visited the site: ${visitorCount}</p>`);
+        res.write(`</body></html>`);
         res.end();
     })
 
