@@ -1,0 +1,6 @@
+{
+    "type": "module",
+    "comments": {
+        "type": "allows for using import syntax"
+    }
+}
